@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { TCat, useCatsStore } from "../../state/cats.store";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useStyle } from "./style";
 
 export function CatsPage() {
@@ -10,17 +10,23 @@ export function CatsPage() {
   const navigate = useNavigate();
   const classes = useStyle();
 
-  const filteredCats = cats.filter((cat) => {
-    const catName = `${cat.firstName} ${cat.lastName}`.toLowerCase();
-    const miceNames = cat.mice?.map((mouse) => mouse.name.toLowerCase()) || [];
+  const lowerSearchCat = searchCatName.toLowerCase();
+  const lowerSearchMouse = searchMouseName.toLowerCase();
 
-    const matchesCat = catName.includes(searchCatName.toLowerCase());
-    const matchesMouse =
-      !searchMouseName ||
-      miceNames?.some((mouse) => mouse.includes(searchMouseName.toLowerCase()));
+  const filteredCats = useMemo(() => {
+    return cats.filter((cat) => {
+      const catName = `${cat.firstName} ${cat.lastName}`.toLowerCase();
+      const miceNames =
+        cat.mice?.map((mouse) => mouse.name.toLowerCase()) || [];
 
-    return matchesCat && matchesMouse;
-  });
+      const matchesCat = catName.includes(lowerSearchCat);
+      const matchesMouse =
+        !lowerSearchMouse ||
+        miceNames?.some((mouse) => mouse.includes(lowerSearchMouse));
+
+      return matchesCat && matchesMouse;
+    });
+  }, [cats, lowerSearchCat, lowerSearchMouse]);
 
   if (!cats.length) return <p>No cats yet</p>;
 

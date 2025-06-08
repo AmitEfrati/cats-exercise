@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { CATS_URL, useCatsStore } from "../../state/cats.store";
 import { useStyle } from "./style";
 import { useNavigate } from "react-router-dom";
@@ -14,15 +14,17 @@ export function AddCatPage() {
   const navigate = useNavigate();
   const classes = useStyle();
 
-  const handleMouseChange = (index: number, value: string) => {
-    const newMice = [...mice];
-    newMice[index] = value;
-    setMice(newMice);
-  };
+  const handleMouseChange = useCallback((index: number, value: string) => {
+    setMice((prev) => {
+      const newMice = [...prev];
+      newMice[index] = value;
+      return newMice;
+    });
+  }, []);
 
-  const addMouseField = () => {
+  const addMouseField = useCallback(() => {
     setMice((prev) => [...prev, ""]);
-  };
+  }, []);
 
   const resetForm = () => {
     setFirstName("");
@@ -36,30 +38,37 @@ export function AddCatPage() {
     event.preventDefault();
     setIsSubmitting(true);
 
+    const catPayload = {
+      firstName,
+      lastName,
+      description,
+      image,
+      mice: mice
+        .filter((mouse) => mouse.trim() !== "")
+        .map((name) => ({ name })),
+    };
+
     try {
       const response = await fetch(CATS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          description,
-          image,
-          mice: mice
-            .filter((mouse) => mouse.trim() !== "")
-            .map((name) => ({ name })),
-        }),
+        body: JSON.stringify(catPayload),
       });
-
-      const newCat = await response.json();
-
-      if (response.ok) {
-        console.log("Cat added successfully:", newCat);
-        await fetchCats();
-        navigate("/cats");
+      if (!response.ok) {
+        throw new Error("Failed to add cat");
       }
+      const newCat = await response.json();
+      console.log("Cat added successfully:", newCat);
+
+      if (!firstName || !lastName || !description || !image) {
+        alert("Please fill in all fields before submitting.");
+        return;
+      }
+
+      await fetchCats();
+      navigate("/cats");
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
