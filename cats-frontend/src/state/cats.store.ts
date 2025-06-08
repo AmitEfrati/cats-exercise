@@ -7,39 +7,46 @@ export type TMouse = {
 };
 
 export type TCat = {
-    id?: number;
+    id: number;
     firstName: string;
     lastName: string;
     image: string;
     description: string;
-    mice: TMouse[];
+    mice?: TMouse[];
 };
 
-const CATS_URL = 'http://localhost:3001/cats';
+export const CATS_URL = 'http://localhost:3001/cats';
 
 function useCats() {
     const [cats, setCats] = useState<TCat[]>([]);
 
-    useEffect(() => {
-        const fetchCats = async () => {
-            try {
-                const response = await fetch(CATS_URL);
-                const data = await response.json();
-                setCats(data);
-            } catch(error) {
-                console.error('Error fetching cats:', error)
+    const fetchCats = async () => {
+        try {
+            const response = await fetch(CATS_URL);
+            if(!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        };
-        fetchCats();
+            
+            const data = await response.json();
+            setCats(data)
+        } catch (error) {
+            console.error('Error fetching cats:', error);
+        }
+    }
+
+    useEffect(() => {
+        if(!cats.length) {
+            fetchCats();
+        }
     },[])
 
     const addCat = (cat: TCat) => {
         setCats((prev) => [...prev, cat])
     };
 
-    return { cats, setCats, addCat };
+    return { cats, setCats, addCat, fetchCats };
 }
 
-const [CatsProvider, useCatsContainer] = createContainer(useCats)
+const [CatsProvider, useCatsStore] = createContainer(useCats)
 
-export { CatsProvider, useCatsContainer}
+export { CatsProvider, useCatsStore }

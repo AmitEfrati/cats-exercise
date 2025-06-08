@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import CatsPage from "./pages/CatsPage";
-import AddCatPage from "./pages/AddCatPage";
+import { CatsPage } from "./components/CatsList";
+import { AddCatPage } from "./components/AddCat";
 
 function App() {
   return (
