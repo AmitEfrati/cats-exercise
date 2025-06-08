@@ -1,38 +1,30 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { CATS_URL, useCatsStore } from "../../state/cats.store";
 import { useStyle } from "./style";
 import { useNavigate } from "react-router-dom";
+import { MouseInput } from "../MouseInput";
+import { useCatForm } from "../../hooks/useCatForm";
 
 export function AddCatPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
-  const [mice, setMice] = useState<string[]>([""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { fetchCats } = useCatsStore();
   const navigate = useNavigate();
   const classes = useStyle();
-
-  const handleMouseChange = useCallback((index: number, value: string) => {
-    setMice((prev) => {
-      const newMice = [...prev];
-      newMice[index] = value;
-      return newMice;
-    });
-  }, []);
-
-  const addMouseField = useCallback(() => {
-    setMice((prev) => [...prev, ""]);
-  }, []);
-
-  const resetForm = () => {
-    setFirstName("");
-    setLastName("");
-    setDescription("");
-    setImage("");
-    setMice([""]);
-  };
+  const {
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    description,
+    setDescription,
+    image,
+    setImage,
+    mice,
+    resetForm,
+    addMouseField,
+    removeMouseField,
+    handleMouseChange,
+  } = useCatForm();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -122,12 +114,11 @@ export function AddCatPage() {
           <label className={classes.label}>Mice:</label>
           <div className={classes.miceGroup}>
             {mice.map((name, index) => (
-              <input
-                key={index}
-                type="text"
-                value={name}
-                placeholder={`Mouse ${index + 1}`}
-                onChange={(e) => handleMouseChange(index, e.target.value)}
+              <MouseInput
+                index={index}
+                name={name}
+                onChange={handleMouseChange}
+                onRemove={removeMouseField}
               />
             ))}
             <button
