@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { CatsModule } from './modules/cats/cats.module';
+import { CatsModule } from './modules/cats/cats/cats.module';
 import { Cat } from './models/cat.model';
 import { Mouse } from './models/mouse.model';
 
