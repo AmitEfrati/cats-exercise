@@ -1,25 +1,15 @@
-import {
-  Table,
-  Column,
-  Model,
-  PrimaryKey,
-  AutoIncrement,
-  DataType,
-  HasMany,
-} from 'sequelize-typescript';
+import { Table, Column, DataType, HasMany, Index } from 'sequelize-typescript';
 import { Mouse } from './mouse.model';
+import { BaseModel } from './base.model';
 
-@Table
-export class Cat extends Model<Cat> {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  declare id: number;
-
-  @Column(DataType.STRING)
+@Table({ tableName: 'cats' })
+export class Cat extends BaseModel<Cat> {
+  @Index
+  @Column({ type: DataType.STRING, allowNull: false })
   declare firstName: string;
 
-  @Column(DataType.STRING)
+  @Index
+  @Column({ type: DataType.STRING, allowNull: false })
   declare lastName: string;
 
   @Column(DataType.STRING)
@@ -28,6 +18,6 @@ export class Cat extends Model<Cat> {
   @Column(DataType.STRING)
   declare description: string;
 
-  @HasMany(() => Mouse)
+  @HasMany(() => Mouse, { onDelete: 'CASCADE' })
   declare mice: Mouse[];
 }

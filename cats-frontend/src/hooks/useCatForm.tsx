@@ -32,19 +32,23 @@ export function useCatForm() {
   };
 
   return {
-    firstName,
-    setFirstName,
-    lastName,
-    setLastName,
-    description,
-    setDescription,
-    image,
-    setImage,
-    mice,
-    setMice,
-    handleMouseChange,
-    addMouseField,
-    resetForm,
-    removeMouseField,
+    state: {
+      firstName,
+      lastName,
+      description,
+      image,
+      mice,
+    },
+    actions: {
+      setFirstName,
+      setLastName,
+      setDescription,
+      setImage,
+      setMice,
+      handleMouseChange,
+      addMouseField,
+      resetForm,
+      removeMouseField,
+    },
   };
 }

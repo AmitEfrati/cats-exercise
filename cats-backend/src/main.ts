@@ -1,11 +1,11 @@
+import cors from '@fastify/cors';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import cors from '@fastify/cors';
-import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   try {

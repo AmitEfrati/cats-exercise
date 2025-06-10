@@ -15,7 +15,7 @@ export class CatsService {
     private mouseModel: typeof Mouse,
   ) {}
 
-  async findAll(): Promise<Cat[]> {
+  async getCats(): Promise<Cat[]> {
     return this.catModel.findAll({
       include: [{ model: Mouse }],
     });

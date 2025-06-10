@@ -1,12 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { TCat, useCatsStore } from "../../state/cats.store";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCatsContext } from "../../state/cats.store";
 import { useStyle } from "./style";
 
 export function CatsPage() {
   const [searchCatName, setSearchCatName] = useState("");
   const [searchMouseName, setSearchMouseName] = useState("");
-  const { cats }: { cats: TCat[] } = useCatsStore();
+  const { state } = useCatsContext();
+  const { cats } = state;
   const navigate = useNavigate();
   const classes = useStyle();
 

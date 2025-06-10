@@ -8,8 +8,8 @@ export class CatsController {
   constructor(private readonly catsService: CatsService) {}
 
   @Get()
-  async findAll(): Promise<Cat[]> {
-    return this.catsService.findAll();
+  async getCats(): Promise<Cat[]> {
+    return this.catsService.getCats();
   }
 
   @Post()

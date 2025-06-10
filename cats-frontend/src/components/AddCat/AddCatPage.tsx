@@ -1,78 +1,58 @@
-import { useState } from "react";
-import { CATS_URL, useCatsStore } from "../../state/cats.store";
+import { useCatsContext } from "../../state/cats.store";
 import { useStyle } from "./style";
 import { useNavigate } from "react-router-dom";
 import { MouseInput } from "../MouseInput";
 import { useCatForm } from "../../hooks/useCatForm";
+import { useCatSubmit } from "../../hooks/useCatSubmit";
+import { useEffect } from "react";
 
 export function AddCatPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { fetchCats } = useCatsStore();
+  const { actions: catsActions } = useCatsContext();
+  const { fetchCats } = catsActions;
   const navigate = useNavigate();
   const classes = useStyle();
+  const { state, actions: catFormActions } = useCatForm();
+  const { firstName, lastName, description, image, mice } = state;
   const {
-    firstName,
     setFirstName,
-    lastName,
     setLastName,
-    description,
     setDescription,
-    image,
     setImage,
-    mice,
     resetForm,
     addMouseField,
     removeMouseField,
     handleMouseChange,
-  } = useCatForm();
+  } = catFormActions;
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsSubmitting(true);
+  const { isSubmitting, handleSubmit } = useCatSubmit({
+    fetchCats,
+    navigate,
+    resetForm,
+  });
 
-    const catPayload = {
-      firstName,
-      lastName,
-      description,
-      image,
-      mice: mice
-        .filter((mouse) => mouse.trim() !== "")
-        .map((name) => ({ name })),
-    };
+  useEffect(() => {
+    fetchCats();
+  }, [fetchCats]);
 
-    try {
-      const response = await fetch(CATS_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(catPayload),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add cat");
-      }
-      const newCat = await response.json();
-      console.log("Cat added successfully:", newCat);
-
-      if (!firstName || !lastName || !description || !image) {
-        alert("Please fill in all fields before submitting.");
-        return;
-      }
-
-      await fetchCats();
-      navigate("/cats");
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    } finally {
-      setIsSubmitting(false);
-      resetForm();
-    }
+  const onSubmit = (e: React.FormEvent) => {
+    handleSubmit(
+      {
+        firstName,
+        lastName,
+        description,
+        image,
+        mice: mice
+          .filter((mouse) => mouse.trim() !== "")
+          .map((name) => ({ name })),
+      },
+      e
+    );
   };
 
   return (
     <div className={classes.container}>
       <h1>Add a New Cat</h1>
-      <form className={classes.formGroup} onSubmit={handleSubmit}>
+      <form className={classes.formGroup} onSubmit={onSubmit}>
         <div>
           <label className={classes.label}> First Name: </label>
           <input

@@ -1,23 +1,18 @@
 import {
   Table,
   Column,
-  Model,
-  PrimaryKey,
-  AutoIncrement,
   DataType,
   ForeignKey,
   BelongsTo,
+  Index,
 } from 'sequelize-typescript';
 import { Cat } from './cat.model';
+import { BaseModel } from './base.model';
 
 @Table
-export class Mouse extends Model<Mouse> {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  declare id: number;
-
-  @Column(DataType.STRING)
+export class Mouse extends BaseModel<Mouse> {
+  @Index
+  @Column({ type: DataType.STRING, allowNull: false })
   declare name: string;
 
   @ForeignKey(() => Cat)

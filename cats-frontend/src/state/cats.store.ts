@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import createContainer from 'constate';
+import { useCallback, useState } from "react";
+import createContext from 'constate';
+
+import { fetchCatsApi } from "../api/cats.api";
 
 export type TMouse = {
     id?: number;
@@ -15,38 +17,31 @@ export type TCat = {
     mice?: TMouse[];
 };
 
-export const CATS_URL = 'http://localhost:3001/cats';
 
 function useCats() {
     const [cats, setCats] = useState<TCat[]>([]);
 
-    const fetchCats = async () => {
-        try {
-            const response = await fetch(CATS_URL);
-            if(!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
+    const fetchCats = useCallback(async () => {
+
+        try {           
+            const data = await fetchCatsApi();
             setCats(data)
         } catch (error) {
             console.error('Error fetching cats:', error);
         }
-    }
+    }, [])
 
-    useEffect(() => {
-        if(!cats.length) {
-            fetchCats();
-        }
-    },[])
-
-    const addCat = (cat: TCat) => {
+    const addCat = useCallback((cat: TCat) => {
         setCats((prev) => [...prev, cat])
-    };
+    }, []) 
+    
 
-    return { cats, setCats, addCat, fetchCats };
+    return { 
+        state: { cats },
+        actions: { setCats, addCat, fetchCats }
+    };
 }
 
-const [CatsProvider, useCatsStore] = createContainer(useCats)
+const [CatsProvider, useCatsContext] = createContext(useCats)
 
-export { CatsProvider, useCatsStore }
+export { CatsProvider, useCatsContext }
