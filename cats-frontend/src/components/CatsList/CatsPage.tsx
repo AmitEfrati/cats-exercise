@@ -1,39 +1,55 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCatsContext } from "../../state/cats.store";
+import { fetchCatsApi } from "../../api/cats.api";
+import { TCat, useCatsContext } from "../../state/cats.store";
+import { Cat } from "../Cat/Cat";
 import { useStyle } from "./style";
 
 export function CatsPage() {
   const [searchCatName, setSearchCatName] = useState("");
   const [searchMouseName, setSearchMouseName] = useState("");
+  const [filteredCats, setFilteredCats] = useState<TCat[]>([]);
   const { state } = useCatsContext();
   const { cats } = state;
   const navigate = useNavigate();
   const classes = useStyle();
 
-  const lowerSearchCat = searchCatName.toLowerCase();
-  const lowerSearchMouse = searchMouseName.toLowerCase();
+  const handleAddCatClick = useCallback(() => {
+    navigate("/cats/add");
+  }, [navigate]);
 
-  const filteredCats = useMemo(() => {
-    return cats.filter((cat) => {
-      const catName = `${cat.firstName} ${cat.lastName}`.toLowerCase();
-      const miceNames =
-        cat.mice?.map((mouse) => mouse.name.toLowerCase()) || [];
+  const handleSearchCatNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchCatName(e.target.value);
+    },
+    []
+  );
 
-      const matchesCat = catName.includes(lowerSearchCat);
-      const matchesMouse =
-        !lowerSearchMouse ||
-        miceNames?.some((mouse) => mouse.includes(lowerSearchMouse));
+  const handleSearchMouseNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchMouseName(e.target.value);
+    },
+    []
+  );
 
-      return matchesCat && matchesMouse;
-    });
-  }, [cats, lowerSearchCat, lowerSearchMouse]);
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const cats = await fetchCatsApi(searchCatName, searchMouseName);
+        setFilteredCats(cats);
+      } catch (error) {
+        console.error("Error fetching cats", error);
+        setFilteredCats([]);
+      }
+    };
+    fetchCats();
+  }, [searchCatName, searchMouseName]);
 
-  if (!cats.length) return <p>No cats yet</p>;
+  if (!cats.length) return <p>No cats yet 🙀</p>;
 
   return (
     <div className={classes.container}>
-      <button onClick={() => navigate("/cats/add")}>+ Add New Cat</button>
+      <button onClick={handleAddCatClick}>+ Add New Cat</button>
       <h1>Cats List</h1>
       <div className={classes.searchBar}>
         <h3>Search Cats</h3>
@@ -41,50 +57,21 @@ export function CatsPage() {
           className={classes.input}
           type="text"
           value={searchCatName}
-          onChange={(e) => setSearchCatName(e.target.value)}
+          onChange={handleSearchCatNameChange}
           placeholder="Search cat by name"
         />
         <input
           className={classes.input}
           type="text"
           value={searchMouseName}
-          onChange={(e) => setSearchMouseName(e.target.value)}
+          onChange={handleSearchMouseNameChange}
           placeholder="Search mouse by name"
         />
       </div>
       {!filteredCats.length ? (
         <p>No matching cats to your search</p>
       ) : (
-        filteredCats.map((cat) => (
-          <div key={cat.id} className={classes.catCard}>
-            <div className={classes.catHeader}>
-              <img
-                src={cat.image}
-                alt={cat.firstName}
-                className={classes.image}
-                width={150}
-              />
-
-              <h2>
-                {cat.firstName} {cat.lastName}
-              </h2>
-            </div>
-            <p>{cat.description}</p>
-
-            {cat.mice?.length ? (
-              <>
-                <h4>Mice:</h4>
-                <ul>
-                  {cat.mice.map((mouse, index) => (
-                    <li key={index}>{mouse.name}</li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p>No mice</p>
-            )}
-          </div>
-        ))
+        filteredCats.map((cat) => <Cat key={cat.id} cat={cat} />)
       )}
     </div>
   );

@@ -14,7 +14,7 @@ export function MouseInput({
   onRemove,
 }: TMouseInputProps) {
   return (
-    <div>
+    <>
       <input
         type="text"
         value={name}
@@ -24,6 +24,6 @@ export function MouseInput({
       <button type="button" onClick={() => onRemove(index)}>
         Remove
       </button>
-    </div>
+    </>
   );
 }

@@ -3,7 +3,7 @@ import { Mouse } from 'src/models/mouse.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateCatDto } from './dto/create-cat.dto';
-import { CreationAttributes } from 'sequelize';
+import { CreationAttributes, Op } from 'sequelize';
 
 @Injectable()
 export class CatsService {
@@ -15,11 +15,41 @@ export class CatsService {
     private mouseModel: typeof Mouse,
   ) {}
 
-  async getCats(): Promise<Cat[]> {
+  async getCats(query: { name?: string; mouseName?: string }): Promise<Cat[]> {
+    const { name, mouseName } = query;
     return this.catModel.findAll({
-      include: [{ model: Mouse }],
+      attributes: ['id', 'firstName', 'lastName'],
+      where: name
+        ? {
+            [Op.or]: [
+              { firstName: { [Op.iLike]: `%${name}%` } },
+              { lastName: { [Op.iLike]: `%${name}%` } },
+            ],
+          }
+        : undefined,
+      include: [
+        {
+          model: Mouse,
+          attributes: ['id', 'name'],
+          where: mouseName
+            ? {
+                name: {
+                  [Op.iLike]: `%${mouseName}%`,
+                },
+              }
+            : undefined,
+          required: mouseName ? true : false,
+        },
+      ],
     });
   }
+
+  // async getCats(): Promise<Cat[]> {
+  //   return this.catModel.findAll({
+  //     attributes: ['id', 'firstName', 'lastName'],
+  //     include: [{ model: Mouse, attributes: ['id', 'name'] }],
+  //   });
+  // }
 
   async create(data: CreateCatDto): Promise<Cat> {
     try {

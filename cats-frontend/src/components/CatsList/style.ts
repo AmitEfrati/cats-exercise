@@ -19,26 +19,6 @@ export const useStyle = createUseStyles({
     fontSize: 14,
     flex: 1,
   },
-  catCard: {
-    border: "1px solid #ddd",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    background: "#f9f9f9",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-  },
-  catHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    objectFit: "cover",
-    borderRadius: 8,
-    border: "1px solid #ccc",
-  },
   catName: {
     margin: 0,
     fontSize: 20,

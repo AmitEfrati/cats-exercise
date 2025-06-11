@@ -59,7 +59,7 @@ export function AddCatPage() {
             className={classes.input}
             type="text"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={catFormActions.handleNameChange}
           />
         </div>
         <div>
@@ -68,7 +68,7 @@ export function AddCatPage() {
             className={classes.input}
             type="text"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={catFormActions.handleLastNameChange}
           />
         </div>
         <div>
@@ -78,7 +78,7 @@ export function AddCatPage() {
             placeholder="Enter Cat's description"
             rows={3}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={catFormActions.handleDescriptionChange}
           />
         </div>
         <div>
@@ -87,7 +87,7 @@ export function AddCatPage() {
             className={classes.input}
             type="text"
             value={image}
-            onChange={(e) => setImage(e.target.value)}
+            onChange={catFormActions.handleImageChange}
           />
         </div>
         <div>
