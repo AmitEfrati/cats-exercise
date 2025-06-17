@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
-import { CATS_URL } from "../state/cats.store";
+import { createCatApi } from "../api/cats.api";
+import type { TCat } from "../context/cats.context";
 
 type TCatPayload = {
   firstName: string;
@@ -10,11 +11,11 @@ type TCatPayload = {
 };
 
 export function useCatSubmit({
-  fetchCats,
+  addCat,
   navigate,
   resetForm,
 }: {
-  fetchCats: () => Promise<void>;
+  addCat: (cat: TCat) => void;
   navigate: (path: string) => void;
   resetForm: () => void;
 }) {
@@ -36,29 +37,18 @@ export function useCatSubmit({
       setIsSubmitting(true);
 
       try {
-        const response = await fetch(CATS_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(catPayload),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to add cat");
-        }
-        const newCat = await response.json();
+        const newCat = await createCatApi(catPayload);
         console.log("Cat added successfully:", newCat);
-
-        await fetchCats();
+        addCat(newCat);
+        resetForm();
         navigate("/cats");
       } catch (error) {
         console.error("Error submitting form:", error);
       } finally {
         setIsSubmitting(false);
-        resetForm();
       }
     },
-    [fetchCats, navigate, resetForm]
+    [addCat, navigate, resetForm]
   );
   return { isSubmitting, handleSubmit };
 }

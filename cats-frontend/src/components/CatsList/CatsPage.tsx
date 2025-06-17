@@ -1,16 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCatsApi } from "../../api/cats.api";
-import { TCat, useCatsContext } from "../../state/cats.store";
-import { Cat } from "../Cat/Cat";
+import { deleteMouseApi } from "../../api/mice.api";
+import { useCatsContext } from "../../context/cats.context";
+import { Cat } from "../Cat";
 import { useStyle } from "./style";
+import { useDebouncedCats } from "../../hooks/useDebouncedCats";
 
 export function CatsPage() {
   const [searchCatName, setSearchCatName] = useState("");
   const [searchMouseName, setSearchMouseName] = useState("");
-  const [filteredCats, setFilteredCats] = useState<TCat[]>([]);
-  const { state } = useCatsContext();
-  const { cats } = state;
+  const {
+    state: { cats },
+  } = useCatsContext();
+
+  const { searchCatsAndMice } = useDebouncedCats(
+    searchCatName,
+    searchMouseName
+  );
   const navigate = useNavigate();
   const classes = useStyle();
 
@@ -32,20 +38,17 @@ export function CatsPage() {
     []
   );
 
-  useEffect(() => {
-    const fetchCats = async () => {
+  const handleDeleteMouse = useCallback(
+    async (id: number) => {
       try {
-        const cats = await fetchCatsApi(searchCatName, searchMouseName);
-        setFilteredCats(cats);
+        await deleteMouseApi(id);
+        searchCatsAndMice();
       } catch (error) {
-        console.error("Error fetching cats", error);
-        setFilteredCats([]);
+        console.error("Error deleting mouse", error);
       }
-    };
-    fetchCats();
-  }, [searchCatName, searchMouseName]);
-
-  if (!cats.length) return <p>No cats yet 🙀</p>;
+    },
+    [searchCatsAndMice]
+  );
 
   return (
     <div className={classes.container}>
@@ -68,10 +71,12 @@ export function CatsPage() {
           placeholder="Search mouse by name"
         />
       </div>
-      {!filteredCats.length ? (
-        <p>No matching cats to your search</p>
+      {!cats.length ? (
+        <p>No matching cats to your search 🙀</p>
       ) : (
-        filteredCats.map((cat) => <Cat key={cat.id} cat={cat} />)
+        cats.map((cat) => (
+          <Cat key={cat.id} cat={cat} onDeleteMouse={handleDeleteMouse} />
+        ))
       )}
     </div>
   );

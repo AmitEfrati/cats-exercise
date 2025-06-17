@@ -1,16 +1,16 @@
-import { TCat } from "../../state/cats.store";
+import type { TCat } from "../../context/cats.context";
 import { useStyle } from "./style";
 
 type TCatProps = {
   cat: TCat;
-  onDelete?: (id: number) => void;
+  onDeleteMouse?: (id: number) => void;
 };
 
-export function Cat({ cat, onDelete }: TCatProps) {
+export function Cat({ cat, onDeleteMouse }: TCatProps) {
   const classes = useStyle();
 
   return (
-    <div key={cat.id} className={classes.catCard}>
+    <div className={classes.catCard}>
       <div className={classes.catHeader}>
         <img
           src={cat.image}
@@ -28,8 +28,18 @@ export function Cat({ cat, onDelete }: TCatProps) {
         <>
           <h4>Mice:</h4>
           <ul>
-            {cat.mice.map((mouse, index) => (
-              <li key={index}>{mouse.name}</li>
+            {cat.mice.map((mouse) => (
+              <li key={mouse.id}>
+                {mouse.name}{" "}
+                {onDeleteMouse && (
+                  <button
+                    className={classes.deleteButton}
+                    onClick={() => onDeleteMouse(mouse.id!)}
+                  >
+                    Delete Mouse
+                  </button>
+                )}
+              </li>
             ))}
           </ul>
         </>

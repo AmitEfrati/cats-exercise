@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback } from "react";
 
 type TMouseInputProps = {
   name: string;
@@ -13,17 +13,28 @@ export function MouseInput({
   onChange,
   onRemove,
 }: TMouseInputProps) {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(index, e.target.value);
+    },
+    [index, onChange]
+  );
+
+  const handleRemove = useCallback(() => {
+    onRemove(index);
+  }, [index, onRemove]);
+
   return (
-    <>
+    <div>
       <input
         type="text"
         value={name}
         placeholder={`Mouse ${index + 1} `}
-        onChange={(e) => onChange(index, e.target.value)}
+        onChange={handleChange}
       />
-      <button type="button" onClick={() => onRemove(index)}>
+      <button type="button" onClick={handleRemove}>
         Remove
       </button>
-    </>
+    </div>
   );
 }

@@ -20,5 +20,19 @@ export const useStyle = createUseStyles({
     objectFit: "cover",
     borderRadius: 8,
     border: "1px solid #ccc",
-  }
+  },
+  deleteButton: {
+  marginLeft: 8,
+  backgroundColor: '#e74c3c',
+  color: '#fff',
+  border: 'none',
+  padding: '4px 8px',
+  borderRadius: 4,
+  cursor: 'pointer',
+  fontWeight: 'bold',
+
+  '&:hover': {
+    backgroundColor: '#c0392b',
+  },
+},
 })

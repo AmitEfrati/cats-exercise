@@ -1,53 +1,60 @@
-import { useCatsContext } from "../../state/cats.store";
+import { useCallback } from "react";
+import { useCatsContext } from "../../context/cats.context";
 import { useStyle } from "./style";
 import { useNavigate } from "react-router-dom";
 import { MouseInput } from "../MouseInput";
 import { useCatForm } from "../../hooks/useCatForm";
 import { useCatSubmit } from "../../hooks/useCatSubmit";
-import { useEffect } from "react";
 
 export function AddCatPage() {
-  const { actions: catsActions } = useCatsContext();
-  const { fetchCats } = catsActions;
+  const {
+    actions: { addCat },
+  } = useCatsContext();
   const navigate = useNavigate();
   const classes = useStyle();
-  const { state, actions: catFormActions } = useCatForm();
-  const { firstName, lastName, description, image, mice } = state;
+
   const {
-    setFirstName,
-    setLastName,
-    setDescription,
-    setImage,
-    resetForm,
-    addMouseField,
-    removeMouseField,
-    handleMouseChange,
-  } = catFormActions;
+    state: { firstName, lastName, description, image, mice },
+    actions: {
+      handleNameChange,
+      handleLastNameChange,
+      handleDescriptionChange,
+      handleImageChange,
+      handleMouseChange,
+      addMouseField,
+      removeMouseField,
+      resetForm,
+    },
+  } = useCatForm();
 
   const { isSubmitting, handleSubmit } = useCatSubmit({
-    fetchCats,
+    addCat,
     navigate,
     resetForm,
   });
 
-  useEffect(() => {
-    fetchCats();
-  }, [fetchCats]);
+  const handleGoBackButton = useCallback(() => {
+    navigate("/cats");
+  }, [navigate]);
 
-  const onSubmit = (e: React.FormEvent) => {
-    handleSubmit(
-      {
-        firstName,
-        lastName,
-        description,
-        image,
-        mice: mice
-          .filter((mouse) => mouse.trim() !== "")
-          .map((name) => ({ name })),
-      },
-      e
-    );
-  };
+  const onSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSubmit(
+        {
+          firstName,
+          lastName,
+          description,
+          image,
+          mice: mice
+            .filter((mouse) => mouse.trim() !== "")
+            .map((name) => ({ name })),
+        },
+        e
+      );
+    },
+    [firstName, lastName, description, image, mice, handleSubmit]
+  );
 
   return (
     <div className={classes.container}>
@@ -59,7 +66,7 @@ export function AddCatPage() {
             className={classes.input}
             type="text"
             value={firstName}
-            onChange={catFormActions.handleNameChange}
+            onChange={handleNameChange}
           />
         </div>
         <div>
@@ -68,7 +75,7 @@ export function AddCatPage() {
             className={classes.input}
             type="text"
             value={lastName}
-            onChange={catFormActions.handleLastNameChange}
+            onChange={handleLastNameChange}
           />
         </div>
         <div>
@@ -78,7 +85,7 @@ export function AddCatPage() {
             placeholder="Enter Cat's description"
             rows={3}
             value={description}
-            onChange={catFormActions.handleDescriptionChange}
+            onChange={handleDescriptionChange}
           />
         </div>
         <div>
@@ -87,7 +94,7 @@ export function AddCatPage() {
             className={classes.input}
             type="text"
             value={image}
-            onChange={catFormActions.handleImageChange}
+            onChange={handleImageChange}
           />
         </div>
         <div>
@@ -120,7 +127,9 @@ export function AddCatPage() {
           </button>
         </div>
       </form>
-      <button onClick={() => navigate("/cats")}>Go to cat's list</button>
+      <button className={classes.button} onClick={handleGoBackButton}>
+        Go to cat's list
+      </button>
     </div>
   );
 }

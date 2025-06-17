@@ -34,31 +34,6 @@ export function useCatForm() {
     },
     []
   );
-
-  //I can also do this- which is better?
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      switch (name) {
-        case "firstName":
-          setFirstName(value);
-          break;
-        case "lastName":
-          setLastName(value);
-          break;
-        case "description":
-          setDescription(value);
-          break;
-        case "image":
-          setImage(value);
-          break;
-        default:
-          break;
-      }
-    },
-    []
-  );
-
   const handleMouseChange = useCallback((index: number, value: string) => {
     setMice((prev) => {
       const newMice = [...prev];
@@ -75,13 +50,13 @@ export function useCatForm() {
     setMice((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFirstName("");
     setLastName("");
     setDescription("");
     setImage("");
     setMice([""]);
-  };
+  }, []);
 
   return {
     state: {
@@ -92,20 +67,14 @@ export function useCatForm() {
       mice,
     },
     actions: {
-      setFirstName,
-      setLastName,
-      setDescription,
-      setImage,
-      setMice,
-      handleMouseChange,
-      addMouseField,
-      resetForm,
-      removeMouseField,
       handleNameChange,
       handleLastNameChange,
       handleDescriptionChange,
       handleImageChange,
-      // handleInputChange,
+      handleMouseChange,
+      addMouseField,
+      removeMouseField,
+      resetForm,
     },
   };
 }

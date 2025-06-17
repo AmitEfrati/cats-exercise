@@ -10,7 +10,7 @@ import { Cat } from './cat.model';
 import { BaseModel } from './base.model';
 
 @Table
-export class Mouse extends BaseModel<Mouse> {
+export class Mouse extends BaseModel {
   @Index
   @Column({ type: DataType.STRING, allowNull: false })
   declare name: string;

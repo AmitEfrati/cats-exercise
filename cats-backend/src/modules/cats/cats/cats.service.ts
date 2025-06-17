@@ -3,7 +3,12 @@ import { Mouse } from 'src/models/mouse.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateCatDto } from './dto/create-cat.dto';
-import { CreationAttributes, Op } from 'sequelize';
+import {
+  CreationAttributes,
+  IncludeOptions,
+  Op,
+  WhereOptions,
+} from 'sequelize';
 
 @Injectable()
 export class CatsService {
@@ -17,39 +22,53 @@ export class CatsService {
 
   async getCats(query: { name?: string; mouseName?: string }): Promise<Cat[]> {
     const { name, mouseName } = query;
-    return this.catModel.findAll({
-      attributes: ['id', 'firstName', 'lastName'],
-      where: name
-        ? {
-            [Op.or]: [
-              { firstName: { [Op.iLike]: `%${name}%` } },
-              { lastName: { [Op.iLike]: `%${name}%` } },
-            ],
-          }
-        : undefined,
-      include: [
-        {
-          model: Mouse,
-          attributes: ['id', 'name'],
-          where: mouseName
-            ? {
-                name: {
-                  [Op.iLike]: `%${mouseName}%`,
-                },
-              }
-            : undefined,
-          required: mouseName ? true : false,
+
+    let miceWithCatIds: number[] = [];
+    if (mouseName) {
+      const matchingMice = await this.mouseModel.findAll({
+        attributes: ['catId'],
+        where: {
+          name: { [Op.iLike]: mouseName },
         },
-      ],
+        raw: true,
+      });
+
+      miceWithCatIds = [...new Set(matchingMice.map((mouse) => mouse.catId))];
+      if (!miceWithCatIds.length) return [];
+    }
+
+    const catWhereClause: WhereOptions<Cat> = {};
+
+    if (name) {
+      catWhereClause[Op.or] = [
+        { firstName: { [Op.iLike]: name } },
+        { lastName: { [Op.iLike]: name } },
+      ];
+    }
+
+    if (miceWithCatIds.length > 0) {
+      if (Object.keys(catWhereClause).length > 0) {
+        catWhereClause[Op.and] = [
+          catWhereClause,
+          { id: { [Op.in]: miceWithCatIds } },
+        ];
+        delete catWhereClause[Op.or];
+      } else {
+        catWhereClause.id = { [Op.in]: miceWithCatIds };
+      }
+    }
+
+    const includeMouse: IncludeOptions = {
+      model: this.mouseModel,
+      attributes: ['id', 'name'],
+      required: false,
+    };
+    return this.catModel.findAll({
+      attributes: ['id', 'firstName', 'lastName', 'description', 'image'],
+      where: catWhereClause,
+      include: [includeMouse],
     });
   }
-
-  // async getCats(): Promise<Cat[]> {
-  //   return this.catModel.findAll({
-  //     attributes: ['id', 'firstName', 'lastName'],
-  //     include: [{ model: Mouse, attributes: ['id', 'name'] }],
-  //   });
-  // }
 
   async create(data: CreateCatDto): Promise<Cat> {
     try {
