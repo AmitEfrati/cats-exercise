@@ -4,19 +4,18 @@ import { deleteMouseApi } from "../../api/mice.api";
 import { useCatsContext } from "../../context/cats.context";
 import { Cat } from "../Cat";
 import { useStyle } from "./style";
-import { useDebouncedCats } from "../../hooks/useDebouncedCats";
+import { useDebouncedCats } from "./CatsList.hooks";
 
 export function CatsPage() {
   const [searchCatName, setSearchCatName] = useState("");
   const [searchMouseName, setSearchMouseName] = useState("");
   const {
     state: { cats },
+    actions: { removeMouse },
   } = useCatsContext();
 
-  const { searchCatsAndMice } = useDebouncedCats(
-    searchCatName,
-    searchMouseName
-  );
+  useDebouncedCats(searchCatName, searchMouseName);
+
   const navigate = useNavigate();
   const classes = useStyle();
 
@@ -39,15 +38,15 @@ export function CatsPage() {
   );
 
   const handleDeleteMouse = useCallback(
-    async (id: number) => {
+    async (mouseId: number, catId: number) => {
       try {
-        await deleteMouseApi(id);
-        searchCatsAndMice();
+        await deleteMouseApi(mouseId);
+        removeMouse(catId, mouseId);
       } catch (error) {
         console.error("Error deleting mouse", error);
       }
     },
-    [searchCatsAndMice]
+    [removeMouse]
   );
 
   return (
@@ -72,10 +71,14 @@ export function CatsPage() {
         />
       </div>
       {!cats.length ? (
-        <p>No matching cats to your search 🙀</p>
+        <p>No cats found 🙀</p>
       ) : (
         cats.map((cat) => (
-          <Cat key={cat.id} cat={cat} onDeleteMouse={handleDeleteMouse} />
+          <Cat
+            key={cat.id}
+            cat={cat}
+            onDeleteMouse={(mouseId) => handleDeleteMouse(mouseId, cat.id)}
+          />
         ))
       )}
     </div>

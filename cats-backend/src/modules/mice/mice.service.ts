@@ -9,8 +9,8 @@ export class MiceService {
     private mouseModel: typeof Mouse,
   ) {}
 
-  async deleteMouse(id: number): Promise<void> {
-    await this.mouseModel.destroy({
+  async deleteMouse(id: number): Promise<number> {
+    return this.mouseModel.destroy({
       where: { id },
     });
   }

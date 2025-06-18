@@ -4,10 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateCatDto } from './dto/create-cat.dto';
 import {
-  CreationAttributes,
-  IncludeOptions,
+  // type CreationAttributes,
+  type IncludeOptions,
   Op,
-  WhereOptions,
+  // Sequelize,
+  type WhereOptions,
 } from 'sequelize';
 
 @Injectable()
@@ -28,12 +29,13 @@ export class CatsService {
       const matchingMice = await this.mouseModel.findAll({
         attributes: ['catId'],
         where: {
-          name: { [Op.iLike]: mouseName },
+          name: { [Op.iLike]: `%${mouseName}%` },
         },
-        raw: true,
       });
 
-      miceWithCatIds = [...new Set(matchingMice.map((mouse) => mouse.catId))];
+      miceWithCatIds = Array.from(
+        new Set(matchingMice.map((mouse) => mouse.catId)),
+      );
       if (!miceWithCatIds.length) return [];
     }
 
@@ -41,12 +43,12 @@ export class CatsService {
 
     if (name) {
       catWhereClause[Op.or] = [
-        { firstName: { [Op.iLike]: name } },
-        { lastName: { [Op.iLike]: name } },
+        { firstName: { [Op.iLike]: `%${name}%` } },
+        { lastName: { [Op.iLike]: `%${name}%` } },
       ];
     }
 
-    if (miceWithCatIds.length > 0) {
+    if (miceWithCatIds.length) {
       if (Object.keys(catWhereClause).length > 0) {
         catWhereClause[Op.and] = [
           catWhereClause,
@@ -71,26 +73,26 @@ export class CatsService {
   }
 
   async create(data: CreateCatDto): Promise<Cat> {
+    const { mice = [], ...catData } = data;
+
+    const mousePayloads = mice
+      .filter((m) => m.name.trim())
+      .map((m) => ({ name: m.name }));
+
     try {
-      const { mice = [], ...catData } = data;
-
       const cat = await this.catModel.create(
-        catData as CreationAttributes<Cat>,
+        {
+          ...catData,
+          mice: mousePayloads,
+        },
+        {
+          include: [Mouse],
+        },
       );
-
-      if (mice?.length) {
-        const miceInstances = mice.map((mouse) => ({
-          name: mouse.name,
-          catId: cat.id,
-        }));
-        await this.mouseModel.bulkCreate(
-          miceInstances as CreationAttributes<Mouse>[],
-        );
-      }
       return cat;
-    } catch (error) {
-      console.error('Error creating cat:', error);
-      throw error;
+    } catch (err) {
+      console.log('Nested create failed', err);
+      throw err;
     }
   }
 }

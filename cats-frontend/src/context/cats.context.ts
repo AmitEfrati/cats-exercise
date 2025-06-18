@@ -21,10 +21,23 @@ function useCats() {
     const addCat = useCallback((cat: TCat) => {
         setCats((prev) => [...prev, cat])
     }, []) 
+
+    const removeMouse = useCallback((catId: number, mouseId: number) => {
+        setCats((prevCats) =>
+            prevCats.map((cat) => 
+                cat.id === catId
+                    ? {
+                        ...cat,
+                        mice: cat.mice?.filter((mouse) => mouse.id !== mouseId),
+                    }
+                    : cat
+            )
+        );
+    }, []);  
     
     return { 
         state: { cats },
-        actions: { setCats, addCat }
+        actions: { setCats, addCat, removeMouse }
     };
 }
 

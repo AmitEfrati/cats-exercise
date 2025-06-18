@@ -3,8 +3,7 @@ import { useCatsContext } from "../../context/cats.context";
 import { useStyle } from "./style";
 import { useNavigate } from "react-router-dom";
 import { MouseInput } from "../MouseInput";
-import { useCatForm } from "../../hooks/useCatForm";
-import { useCatSubmit } from "../../hooks/useCatSubmit";
+import { useCatForm, useCatSubmit } from "./AddCat.hooks";
 
 export function AddCatPage() {
   const {

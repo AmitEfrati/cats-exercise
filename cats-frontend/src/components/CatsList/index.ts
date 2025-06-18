@@ -1,1 +1,1 @@
-export * from "./CatsPage"
+export * from "./CatsListPage"

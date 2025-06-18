@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { fetchCatsApi } from "../api/cats.api";
-import type { TCat } from "../context/cats.context";
+import { useCallback, useEffect, useRef } from "react";
+import { fetchCatsApi } from "../../api/cats.api";
+import { useCatsContext } from "../../context/cats.context";
 
 export function useDebouncedCats(
   searchCatName: string,
   searchMouseName: string,
   debounceDelay: number = 300
-): { cats: TCat[]; searchCatsAndMice: () => void } {
-  const [cats, setCats] = useState<TCat[]>([]);
+) {
+  const {
+    actions: { setCats },
+  } = useCatsContext();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -28,7 +30,7 @@ export function useDebouncedCats(
         setCats([]);
       }
     }, debounceDelay);
-  }, [searchCatName, searchMouseName, debounceDelay]);
+  }, [searchCatName, searchMouseName, debounceDelay, setCats]);
 
   useEffect(() => {
     searchCatsAndMice();
@@ -38,5 +40,6 @@ export function useDebouncedCats(
     };
   }, [searchCatsAndMice]);
 
-  return { cats, searchCatsAndMice };
+  return { searchCatsAndMice };
 }
+

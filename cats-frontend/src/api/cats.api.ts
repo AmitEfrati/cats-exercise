@@ -1,6 +1,5 @@
 import type { TCat } from '../context/cats.context';
-
-export const CATS_URL = 'http://localhost:3001/cats';
+import { CATS_URL } from './urls';
 
 export const fetchCatsApi = async (
     name?: string,
@@ -24,5 +23,11 @@ export const createCatApi = async (catPayLoad: Omit<TCat, 'id'>): Promise<TCat> 
         body: JSON.stringify(catPayLoad),
     });
 
-    return response.json();
+if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Error creating cat (${response.status}): ${text}`);
+  }
+
+  const newCat = (await response.json()) as TCat;
+  return newCat;
 };

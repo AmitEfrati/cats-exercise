@@ -3,7 +3,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { CatsModule } from './modules/cats/cats/cats.module';
 import { Cat } from './models/cat.model';
 import { Mouse } from './models/mouse.model';
-
+import { MiceModule } from './modules/mice/mice.module';
 @Module({
   imports: [
     SequelizeModule.forRoot({
@@ -18,6 +18,7 @@ import { Mouse } from './models/mouse.model';
       synchronize: true,
     }),
     CatsModule,
+    MiceModule,
   ],
 })
 export class AppModule {}
