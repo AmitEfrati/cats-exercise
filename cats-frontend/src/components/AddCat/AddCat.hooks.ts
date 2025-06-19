@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { createCatApi } from "../../api/cats.api";
 import type { TCat } from "../../context/cats.context";
 
@@ -91,14 +92,13 @@ type TCatPayload = {
 
 export function useCatSubmit({
   addCat,
-  navigate,
   resetForm,
 }: {
   addCat: (cat: TCat) => void;
-  navigate: (path: string) => void;
   resetForm: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = useCallback(
     async (catPayload: TCatPayload, event: React.FormEvent) => {

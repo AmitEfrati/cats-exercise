@@ -28,7 +28,6 @@ export function AddCatPage() {
 
   const { isSubmitting, handleSubmit } = useCatSubmit({
     addCat,
-    navigate,
     resetForm,
   });
 

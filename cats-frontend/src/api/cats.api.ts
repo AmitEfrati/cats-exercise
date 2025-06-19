@@ -23,11 +23,6 @@ export const createCatApi = async (catPayLoad: Omit<TCat, 'id'>): Promise<TCat> 
         body: JSON.stringify(catPayLoad),
     });
 
-if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Error creating cat (${response.status}): ${text}`);
-  }
-
   const newCat = (await response.json()) as TCat;
   return newCat;
 };

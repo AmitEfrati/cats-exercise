@@ -3,13 +3,7 @@ import { Mouse } from 'src/models/mouse.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateCatDto } from './dto/create-cat.dto';
-import {
-  // type CreationAttributes,
-  type IncludeOptions,
-  Op,
-  // Sequelize,
-  type WhereOptions,
-} from 'sequelize';
+import { type IncludeOptions, Op, type WhereOptions } from 'sequelize';
 
 @Injectable()
 export class CatsService {

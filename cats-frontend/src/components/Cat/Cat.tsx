@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { TCat } from "../../context/cats.context";
 import { useStyle } from "./style";
 
@@ -8,6 +9,18 @@ type TCatProps = {
 
 export function Cat({ cat, onDeleteMouse }: TCatProps) {
   const classes = useStyle();
+
+  const deleteHandlers = useMemo(() => {
+    const map: Record<number, () => void> = {};
+    if (onDeleteMouse && cat.mice) {
+      for (const mouse of cat.mice) {
+        if (mouse.id != null) {
+          map[mouse.id] = () => onDeleteMouse(mouse.id!);
+        }
+      }
+    }
+    return map;
+  }, [onDeleteMouse, cat.mice]);
 
   return (
     <div className={classes.catCard}>
@@ -31,10 +44,10 @@ export function Cat({ cat, onDeleteMouse }: TCatProps) {
             {cat.mice.map((mouse) => (
               <li key={mouse.id}>
                 {mouse.name}{" "}
-                {onDeleteMouse && (
+                {onDeleteMouse && mouse.id != null && (
                   <button
                     className={classes.deleteButton}
-                    onClick={() => onDeleteMouse(mouse.id!)}
+                    onClick={deleteHandlers[mouse.id]}
                   >
                     Delete Mouse
                   </button>
